@@ -75,4 +75,4 @@ for episode in range(1000):  # Número de iterações de aprendizado
 def select_quality(buffer, buffer_change, quality, bandwidth, osc_length, osc_depth):
     state = discretize_state(buffer, buffer_change, quality, bandwidth, osc_length, osc_depth)
     action = softmax_selection(state)
-    select.qi(action)  # Chama a função para baixar o segmento na qualidade escolhida
+    return action  # Chama a função para baixar o segmento na qualidade escolhida
