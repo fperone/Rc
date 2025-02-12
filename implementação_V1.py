@@ -26,7 +26,7 @@ class R2AQlearning(IR2A):
      self.request_time = time.perf_counter()
      self.send_down(msg)
 
-  def handle_xml_response(self, msg)
+  def handle_xml_response(self, msg):
     parsed_mpd = parse_mpd(msg.get_payload())
     self.qi = parsed_mpd.get_qi()
     t = (time.perf_counter() - self.request_tine)/2
