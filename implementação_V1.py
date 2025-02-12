@@ -39,7 +39,7 @@ class R2AQlearning(IR2A):
           # Obter estado inicial do ambiente
           bufferfilling = random.uniform(0, Bfmax)  # Simulação de preenchimento do buffer
           buffer_change = random.uniform(-Bfmax + bufferfilling, Bfmax - bufferfilling)  # Simulação de variação do buffer
-          quality = random.randint(self.qi)  # Qualidade atual
+          quality = random.choice(self.qi)  # Qualidade atual MUDAR TALVEZ random.randint(self.qi)
           bandwidth = random.randint(20000, 5000000)  # Simulação de largura de banda
           osc_length = random.randint(0, 60)  # Comprimento da oscilação
           osc_depth = random.randint(0, 19)  # Profundidade da oscilação
@@ -57,9 +57,9 @@ class R2AQlearning(IR2A):
             RB = (2 * bufferfilling)/((1-0.1) * Bfmax) - ((1 + 0.1)/(1 - 0.1))
           bufferfilling_anterior = bufferfilling - buffer_change
           if buffer_change <= 0:
-            RBC = bufferchange/bufferfilling_anterior
+            RBC = buffer_change/bufferfilling_anterior
           else:
-            RBC = bufferchange/(bufferfilling - (bufferfillinf_anterior/2))
+            RBC = buffer_change/(bufferfilling - (bufferfillinf_anterior/2))
           reward = 2*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
           # Novo estado após baixar o segmento!!!
           bufferfilling = random.uniform(0, Bfmax)  # Simulação de preenchimento do buffer MUDAR p/ get buffer max
@@ -99,9 +99,9 @@ class R2AQlearning(IR2A):
       else:
         tempo_referencia = quality_lista[-1][0]  # Tempo da amostra mais recente
         qualidade_referencia = quality_lista[-1][1]  # Qualidade da amostra mais recente
-        for i in range(len(dados) - 2, -1, -1):  # Itera sobre as amostras anteriores
-            tempo_amostra_i = dados[i][0]
-            qualidade_amostra_i = dados[i][1]
+        for i in range(len(quality_lista) - 2, -1, -1):  # Itera sobre as amostras anteriores
+            tempo_amostra_i = quality_lista[i][0]
+            qualidade_amostra_i = quality_lista[i][1]
             if tempo_referencia - tempo_amostra_i > 60.0:
               osc_length = 0
               osc_depth = 0
@@ -135,9 +135,9 @@ class R2AQlearning(IR2A):
       RB = (2 * bufferfilling)/((1-0.1) * Bfmax) - ((1 + 0.1)/(1 - 0.1))
     bufferfilling_anterior = bufferfilling - buffer_change
     if buffer_change <= 0:
-      RBC = bufferchange/bufferfilling_anterior
+      RBC = buffer_change/bufferfilling_anterior
     else:
-      RBC = bufferchange/(bufferfilling - (bufferfillinf_anterior/2))
+      RBC = buffer_change/(bufferfilling - (bufferfillinf_anterior/2))
     reward = 2*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
 
     buffer_filling_lista = self.whiteboard.get_playback_buffer_size() 
@@ -155,9 +155,9 @@ class R2AQlearning(IR2A):
     else:
       tempo_referencia = quality_lista[-1][0]  # Tempo da amostra mais recente
       qualidade_referencia = quality_lista[-1][1]  # Qualidade da amostra mais recente
-      for i in range(len(dados) - 2, -1, -1):  # Itera sobre as amostras anteriores
-          tempo_amostra_i = dados[i][0]
-          qualidade_amostra_i = dados[i][1]
+      for i in range(len(quality_lista) - 2, -1, -1):  # Itera sobre as amostras anteriores
+          tempo_amostra_i = quality_lista[i][0]
+          qualidade_amostra_i = quality_lista[i][1]
           if tempo_referencia - tempo_amostra_i > 60.0:
             osc_length = 0
             osc_depth = 0
