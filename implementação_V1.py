@@ -1,5 +1,8 @@
 from r2a.ir2a import IR2A
 import time
+import numpy as np
+import random
+import math
 
 class R2AQlearning(IR2A):
   def __init__(self, id):
