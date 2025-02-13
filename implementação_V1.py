@@ -128,7 +128,7 @@ class R2AQlearning(IR2A):
     seg_num += 1
     self.request_time = time.perf_counter()
     self.send_down(msg)
-  def handle_segment.size_response(self,msg):
+  def handle_segment_size_response(self,msg):
     t= (time.perf_counter() - self.request_time)/2
     self.throughputs.append(msg.get_bit_length()/t)
     #FEEDBACK PROTOCOLO ABR
