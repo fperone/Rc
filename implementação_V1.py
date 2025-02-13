@@ -30,7 +30,7 @@ class R2AQlearning(IR2A):
   def handle_xml_response(self, msg):
     parsed_mpd = parse_mpd(msg.get_payload())
     self.qi = parsed_mpd.get_qi()
-    t = (time.perf_counter() - self.request_tine)/2
+    t = (time.perf_counter() - self.request_time)/2
     self.throughputs.append(msg.get_bit_length()/t)
     Bfmax = self.whiteboard.get_max_buffer_size() 
     self.send_up(msg)
@@ -54,7 +54,10 @@ class R2AQlearning(IR2A):
           # lógica para medir recompensa
           N = self.qi.index(quality)
           RQ = ((((quality - 1)/ N - 1) * 2) - 1)
-          RO = (-1/osc_length**(2/osc_depth)) + ((osc_length - 1)/((60 - 1)* (60 **(2/osc_depth))))
+          if osc_length and osc_depth != 0:
+            RO = (-1/osc_length**(2/osc_depth)) + ((osc_length - 1)/((60 - 1)* (60 **(2/osc_depth))))
+          else:
+            RO = 0
           if bufferfilling <= (0.1 * Bfmax):
             RB = -1
           else:
@@ -132,7 +135,10 @@ class R2AQlearning(IR2A):
     # lógica para medir recompensa
     N = self.qi.index(quality)
     RQ = ((((quality - 1)/ N - 1) * 2) - 1)
-    RO = (-1/osc_length**(2/osc_depth)) + ((osc_length - 1)/((60 - 1)* (60 **(2/osc_depth))))
+    if osc_length and osc_depth != 0:
+      RO = (-1/osc_length**(2/osc_depth)) + ((osc_length - 1)/((60 - 1)* (60 **(2/osc_depth))))
+    else:
+      RO = 0
     if bufferfilling <= (0.1 * Bfmax):
       RB = -1
     else:
