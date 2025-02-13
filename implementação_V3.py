@@ -18,7 +18,8 @@ class R2AQlearning(IR2A):
     # Definição do espaço de estados (discretização pode ser ajustada conforme necessário)
     #MUDAR, BOTAR SELF. NESSES AQ
     self.seg_num = 0
-    #STATE_SPACE = {} #n é usado
+    self.state_space = [] #passa valores de state de ss_request p/ ss_response
+    self.action_space = [] #passa valores de action de ss_request p/ ss_response
     self.Q_table = {}  # Dicionário para armazenar os valores Q
     #num_qualities = len(self.qi)
     pass
@@ -52,7 +53,7 @@ class R2AQlearning(IR2A):
           bandwidth = random.randint(20000, 5000000)  # Simulação de largura de banda
           osc_length = random.randint(0, 60)  # Comprimento da oscilação
           osc_depth = random.randint(0, 19)  # Profundidade da oscilação
-          state = [(round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth)]
+          state = (round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth)
           # Selecionar ação usando Softmax
           #aqui
           if state not in self.Q_table:
@@ -87,7 +88,7 @@ class R2AQlearning(IR2A):
           bandwidth = random.randint(20000, 5000000)  # Simulação de largura de banda
           osc_length = random.randint(0, 60)  # Comprimento da oscilação
           osc_depth = random.randint(0, 19)  # Profundidade da oscilação
-          next_state = [round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth]
+          next_state = (round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth)
           # Atualizar a Q-table
           #update_q_table(state, action, reward, next_state)
           if next_state not in self.Q_table:
@@ -107,7 +108,7 @@ class R2AQlearning(IR2A):
       osc_depth = 0  # Profundidade da oscilação
       #action = select_quality(bufferfilling, buffer_change, quality, bandwidth, osc_length, osc_depth)
       #def select_quality(buffer, buffer_change, quality, bandwidth, osc_length, osc_depth):
-      state = [bufferfilling, buffer_change, quality, bandwidth, osc_length, osc_depth]
+      state = (bufferfilling, buffer_change, quality, bandwidth, osc_length, osc_depth)
       #action = softmax_selection(state)
       #def softmax_selection(state):
       if state not in self.Q_table:
@@ -118,6 +119,8 @@ class R2AQlearning(IR2A):
       probabilities = exp_q / np.sum(exp_q)
       action = np.random.choice(range(num_qualities), p=probabilities) #seleciona através da política softmax
       msg.add_quality_id(action)
+      self.state_space.append(state)
+      self.action_space.append(action)
     else:
       buffer_filling_lista = self.whiteboard.get_playback_buffer_size() 
       bufferfilling = buffer_filling_lista[-1][1]
@@ -152,7 +155,7 @@ class R2AQlearning(IR2A):
       #action = select_quality(bufferfilling, buffer_change, quality, bandwidth, osc_length, osc_depth)
       #def select_quality(buffer, buffer_change, quality, bandwidth, osc_length, osc_depth):
       #aqui
-      state = [round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth]
+      state = (round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth)
       if state not in self.Q_table:
         self.Q_table[state] = np.zeros(num_qualities)  # Inicializa Q(s, a) se não existir, cria um array de 20 zeros no dicionário Q_table com chave = state.
     
@@ -160,13 +163,17 @@ class R2AQlearning(IR2A):
       exp_q = np.exp(q_values / tau)
       probabilities = exp_q / np.sum(exp_q)
       action = np.random.choice(range(num_qualities), p=probabilities) #seleciona através da política softmax
-      msg.add_quality_id(action)      
+      msg.add_quality_id(action)
+      self.state_space.append(state)
+      self.action_space.append(action)
     #msg.add_quality_id()
     #FIM DO PROTOCOLO ABR NO REQUEST
     self.seg_num += 1
     self.request_time = time.perf_counter()
     self.send_down(msg)
   def handle_segment_size_response(self,msg):
+    state = self.state_space[0]
+    action = self.action_space[0]
     num_qualities = len(self.qi)
     t= (time.perf_counter() - self.request_time)/2
     self.throughputs.append(msg.get_bit_length()/t)
@@ -220,13 +227,15 @@ class R2AQlearning(IR2A):
               osc_length = 0
               osc_depth = 0
     #FIM DO FEEDBACK
-    next_state = [round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth]
+    next_state = (round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth)
     #update_q_table(state, action, reward, next_state)
     if next_state not in self.Q_table:
       self.Q_table[next_state] = np.zeros(num_qualities) # Inicializa Q(s, a) se não existir, cria um array de 20 zeros no dicionário Q_table com chave = state.
       
     best_next_action = np.argmax(self.Q_table[next_state])
     self.Q_table[state][action] += alpha * (reward + gamma * self.Q_table[next_state][best_next_action] - self.Q_table[state][action])
+    self.state_space.clear()
+    self.action_space.clear()
     self.send_up(msg)
 
   def initialize(self):
