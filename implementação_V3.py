@@ -11,16 +11,16 @@ class R2AQlearning(IR2A):
     self.qi = []
     self.request_time = []
     # Parâmetros do Q-learning
-    alpha = 0.1  # Taxa de aprendizado
-    gamma = 0.9  # Fator de desconto
-    tau = 1.0    # Temperatura para Softmax
+    #alpha = 0.1  # Taxa de aprendizado
+    #gamma = 0.9  # Fator de desconto
+    #tau = 1.0    # Temperatura para Softmax
 
     # Definição do espaço de estados (discretização pode ser ajustada conforme necessário)
     #MUDAR, BOTAR SELF. NESSES AQ
     self.seg_num = 0
     #STATE_SPACE = {} #n é usado
     self.Q_table = {}  # Dicionário para armazenar os valores Q
-    num_qualities = len(self.qi[])
+    #num_qualities = len(self.qi)
     pass
 
   def handle_xml_request(self, msg):
@@ -37,7 +37,7 @@ class R2AQlearning(IR2A):
 
 
   def handle_segment_size_request(self,msg):
-    num_qualities = len(self.qi[])
+    num_qualities = len(self.qi)
     # Parâmetros do Q-learning
     alpha = 0.1  # Taxa de aprendizado
     gamma = 0.9  # Fator de desconto
@@ -167,7 +167,7 @@ class R2AQlearning(IR2A):
     self.request_time = time.perf_counter()
     self.send_down(msg)
   def handle_segment_size_response(self,msg):
-    num_qualities = len(self.qi[])
+    num_qualities = len(self.qi)
     t= (time.perf_counter() - self.request_time)/2
     self.throughputs.append(msg.get_bit_length()/t)
     #FEEDBACK PROTOCOLO ABR
