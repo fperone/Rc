@@ -1,4 +1,5 @@
 from r2a.ir2a import IR2A
+from player.parser import *
 import time
 import numpy as np
 import random
@@ -62,12 +63,12 @@ class R2AQlearning(IR2A):
           if buffer_change <= 0:
             RBC = buffer_change/bufferfilling_anterior
           else:
-            RBC = buffer_change/(bufferfilling - (bufferfillinf_anterior/2))
+            RBC = buffer_change/(bufferfilling - (bufferfilling_anterior/2))
           reward = 2*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
           # Novo estado após baixar o segmento!!!
           bufferfilling = random.uniform(0, Bfmax)  # Simulação de preenchimento do buffer MUDAR p/ get buffer max
           buffer_change = random.uniform(-Bfmax + bufferfilling, Bfmax - bufferfilling)  # Simulação de variação do buffer MUDAR p/ get buffer max
-          quality = random.randint(self.qi)  # Qualidade atual
+          quality = random.choice(self.qi)  # Qualidade atual
           bandwidth = random.randint(20000, 5000000)  # Simulação de largura de banda
           osc_length = random.randint(0, 60)  # Comprimento da oscilação
           osc_depth = random.randint(0, 19)  # Profundidade da oscilação
@@ -85,7 +86,7 @@ class R2AQlearning(IR2A):
       osc_length = 0  # Comprimento da oscilação
       osc_depth = 0  # Profundidade da oscilação
       action = select_quality(bufferfilling, buffer_change, quality, bandwidth, osc_length, osc_depth)
-      msg.add.quality_id(action)
+      msg.add_quality_id(action)
     else:
       buffer_filling_lista = self.whiteboard.get_playback_buffer_size() 
       bufferfilling = buffer_filling_lista[-1][1]
@@ -118,8 +119,8 @@ class R2AQlearning(IR2A):
                 osc_length = 0
                 osc_depth = 0
       action = select_quality(bufferfilling, buffer_change, quality, bandwidth, osc_length, osc_depth)
-      msg.add.quality_id(action)      
-    #msg.add.quality_id()
+      msg.add_quality_id(action)      
+    #msg.add_quality_id()
     #FIM DO PROTOCOLO ABR NO REQUEST
     seg_num += 1
     self.request_time = time.perf_counter()
@@ -140,7 +141,7 @@ class R2AQlearning(IR2A):
     if buffer_change <= 0:
       RBC = buffer_change/bufferfilling_anterior
     else:
-      RBC = buffer_change/(bufferfilling - (bufferfillinf_anterior/2))
+      RBC = buffer_change/(bufferfilling - (bufferfilling_anterior/2))
     reward = 2*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
 
     buffer_filling_lista = self.whiteboard.get_playback_buffer_size() 
