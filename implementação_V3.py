@@ -107,7 +107,7 @@ class R2AQlearning(IR2A):
       osc_depth = 0  # Profundidade da oscilação
       #action = select_quality(bufferfilling, buffer_change, quality, bandwidth, osc_length, osc_depth)
       #def select_quality(buffer, buffer_change, quality, bandwidth, osc_length, osc_depth):
-      state = [bufferfilling, buffer_change, quality, bandwidth, osc_length, osc_depth)
+      state = [bufferfilling, buffer_change, quality, bandwidth, osc_length, osc_depth]
       #action = softmax_selection(state)
       #def softmax_selection(state):
       if state not in self.Q_table:
