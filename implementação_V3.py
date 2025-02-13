@@ -33,12 +33,12 @@ class R2AQlearning(IR2A):
     self.qi = parsed_mpd.get_qi()
     t = (time.perf_counter() - self.request_time)/2
     self.throughputs.append(msg.get_bit_length()/t)
-    Bfmax = self.whiteboard.get_max_buffer_size() 
     self.send_up(msg)
 
 
   def handle_segment_size_request(self,msg):
     num_qualities = len(self.qi)
+    Bfmax = self.whiteboard.get_max_buffer_size() 
     # Parâmetros do Q-learning
     alpha = 0.1  # Taxa de aprendizado
     gamma = 0.9  # Fator de desconto
@@ -172,12 +172,24 @@ class R2AQlearning(IR2A):
     self.request_time = time.perf_counter()
     self.send_down(msg)
   def handle_segment_size_response(self,msg):
+    Bfmax = self.whiteboard.get_max_buffer_size() 
     state = self.state_space[0]
     action = self.action_space[0]
     num_qualities = len(self.qi)
     t= (time.perf_counter() - self.request_time)/2
     self.throughputs.append(msg.get_bit_length()/t)
+    alpha = 0.1  # Taxa de aprendizado
+    gamma = 0.9  # Fator de desconto
+    tau = 1.0    # Temperatura para Softmax
     #FEEDBACK PROTOCOLO ABR
+    #state = (round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth)
+    bufferfilling = self.state_space[0][0]
+    buffer_change = self.state_space[0][1]
+    quality = self.state_space[0][2]
+    bandwidth = self.state_space[0][3]
+    osc_length = self.state_space[0][4]
+    osc_depth = self.state_space[0][5]
+    
     # lógica para medir recompensa
     N = self.qi.index(quality)
     RQ = ((((quality - 1)/ N - 1) * 2) - 1)
