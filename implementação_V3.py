@@ -121,7 +121,7 @@ class R2AQlearning(IR2A):
       probabilities = exp_q / np.sum(exp_q)
       action = np.random.choice(range(num_qualities), p=probabilities) #seleciona através da política softmax
       print(f"chegou aqui na primeira tomada de decisão action segnum = 0, escolheu a qualidade: {action}") #tirar dps
-      msg.add_quality_id(action)
+      msg.add_quality_id(self.qi[action])
       self.state_space.append(state)
       self.action_space.append(action)
     else:
@@ -167,7 +167,7 @@ class R2AQlearning(IR2A):
       probabilities = exp_q / np.sum(exp_q)
       action = np.random.choice(range(num_qualities), p=probabilities) #seleciona através da política softmax
       print(f"chegou na tomada de decisão action p/ segnum > 0, escolheu qualidade: {action}")
-      msg.add_quality_id(action)
+      msg.add_quality_id(self.qi[action])
       self.state_space.append(state)
       self.action_space.append(action)
     #msg.add_quality_id()
