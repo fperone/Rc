@@ -32,6 +32,7 @@ class R2AQlearning(IR2A):
   def handle_xml_response(self, msg):
     parsed_mpd = parse_mpd(msg.get_payload())
     self.qi = parsed_mpd.get_qi()
+    print(self.qi) #tirar dps
     t = (time.perf_counter() - self.request_time)/2
     self.throughputs.append(msg.get_bit_length()/t)
     self.send_up(msg)
@@ -119,6 +120,7 @@ class R2AQlearning(IR2A):
       exp_q = np.exp(q_values / tau)
       probabilities = exp_q / np.sum(exp_q)
       action = np.random.choice(range(num_qualities), p=probabilities) #seleciona através da política softmax
+      print(action)
       msg.add_quality_id(action)
       self.state_space.append(state)
       self.action_space.append(action)
@@ -164,6 +166,7 @@ class R2AQlearning(IR2A):
       exp_q = np.exp(q_values / tau)
       probabilities = exp_q / np.sum(exp_q)
       action = np.random.choice(range(num_qualities), p=probabilities) #seleciona através da política softmax
+      print(action)
       msg.add_quality_id(action)
       self.state_space.append(state)
       self.action_space.append(action)
