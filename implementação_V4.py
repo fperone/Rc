@@ -130,7 +130,7 @@ class R2AQlearning(IR2A):
       buffer_filling_lista = self.whiteboard.get_playback_buffer_size() 
       bufferfilling = buffer_filling_lista[-1][1]
       if len(buffer_filling_lista) >= 2:
-        buffer_change = buffer_filling - buffer_filling_lista[-2][1]
+        buffer_change = bufferfilling - buffer_filling_lista[-2][1]
       else:
         buffer_change = 0
       quality_lista = self.whiteboard.get_playback_qi()
@@ -223,7 +223,7 @@ class R2AQlearning(IR2A):
     else:
       bufferfilling = buffer_filling_lista[-1][1]
       if len(buffer_filling_lista) >= 2:
-        buffer_change = buffer_filling - buffer_filling_lista[-2][1]
+        buffer_change = bufferfilling - buffer_filling_lista[-2][1]
       else:
         buffer_change = 0
         quality_lista = self.whiteboard.get_playback_qi()
