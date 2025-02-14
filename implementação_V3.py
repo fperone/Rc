@@ -32,7 +32,7 @@ class R2AQlearning(IR2A):
   def handle_xml_response(self, msg):
     parsed_mpd = parse_mpd(msg.get_payload())
     self.qi = parsed_mpd.get_qi()
-    print(self.qi) #tirar dps
+    print(f" chegou aqui na lista self.qi handle_xml_response {self.qi}") #tirar dps
     t = (time.perf_counter() - self.request_time)/2
     self.throughputs.append(msg.get_bit_length()/t)
     self.send_up(msg)
@@ -120,7 +120,7 @@ class R2AQlearning(IR2A):
       exp_q = np.exp(q_values / tau)
       probabilities = exp_q / np.sum(exp_q)
       action = np.random.choice(range(num_qualities), p=probabilities) #seleciona através da política softmax
-      print(action)
+      print(f"chegou aqui na primeira tomada de decisão action segnum = 0, escolheu a qualidade: {action}") #tirar dps
       msg.add_quality_id(action)
       self.state_space.append(state)
       self.action_space.append(action)
@@ -166,7 +166,7 @@ class R2AQlearning(IR2A):
       exp_q = np.exp(q_values / tau)
       probabilities = exp_q / np.sum(exp_q)
       action = np.random.choice(range(num_qualities), p=probabilities) #seleciona através da política softmax
-      print(action)
+      print(f"chegou na tomada de decisão action p/ segnum > 0, escolheu qualidade: {action}")
       msg.add_quality_id(action)
       self.state_space.append(state)
       self.action_space.append(action)
@@ -176,6 +176,7 @@ class R2AQlearning(IR2A):
     self.request_time = time.perf_counter()
     self.send_down(msg)
   def handle_segment_size_response(self,msg):
+    print("chegou no handle_segment_size_response")
     Bfmax = self.whiteboard.get_max_buffer_size() 
     state = self.state_space[0]
     action = self.action_space[0]
@@ -252,6 +253,7 @@ class R2AQlearning(IR2A):
     self.Q_table[state][action] += alpha * (reward + gamma * self.Q_table[next_state][best_next_action] - self.Q_table[state][action])
     self.state_space.clear()
     self.action_space.clear()
+    print("chegou no final do handle_segment_size_response")
     self.send_up(msg)
 
   def initialize(self):
