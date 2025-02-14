@@ -134,17 +134,17 @@ class R2AQlearning(IR2A):
       else:
         buffer_change = 0
       quality_lista = self.whiteboard.get_playback_qi()
-      quality = quality_lista_1[-1] #verificar DPS self.qi.index(quality_lista[-1][1])
+      quality = self.quality_lista_1[-1] #verificar DPS self.qi.index(quality_lista[-1][1])
       bandwidth = self.throughputs[self.seg_num]
-      if len(quality_lista_1) < 2:
+      if len(self.quality_lista_1) < 2:
         osc_length = 0  # Comprimento da oscilação
         osc_depth = 0  # Profundidade da oscilação
       else:
         #tempo_referencia = quality_lista[-1][0]  # Tempo da amostra mais recente, não precisa pq vamos usar unidade de segmentos!
-        qualidade_referencia = quality_lista_1[-1]  # Qualidade da amostra mais recente
-        for i in range(len(quality_lista_1) - 2, -1, -1):  # Itera sobre as amostras anteriores
+        qualidade_referencia = self.quality_lista_1[-1]  # Qualidade da amostra mais recente
+        for i in range(len(self.quality_lista_1) - 2, -1, -1):  # Itera sobre as amostras anteriores
             #tempo_amostra_i = quality_lista[i][0]
-            qualidade_amostra_i = quality_lista_1[i]
+            qualidade_amostra_i = self.quality_lista_1[i]
             if i >= 60:
               osc_length = 0
               osc_depth = 0
@@ -227,16 +227,16 @@ class R2AQlearning(IR2A):
       else:
         buffer_change = 0
         quality_lista = self.whiteboard.get_playback_qi()
-        quality = (quality_lista_1[-1]) #verificar
+        quality = (self.quality_lista_1[-1]) #verificar
         bandwidth = self.throughputs[self.seg_num]
-      if len(quality_lista_1) < 2:
+      if len(self.quality_lista_1) < 2:
         osc_length = 0  # Comprimento da oscilação
         osc_depth = 0  # Profundidade da oscilação
       else: #paste
-        qualidade_referencia = quality_lista_1[-1]  # Qualidade da amostra mais recente
-        for i in range(len(quality_lista_1) - 2, -1, -1):  # Itera sobre as amostras anteriores
+        qualidade_referencia = self.quality_lista_1[-1]  # Qualidade da amostra mais recente
+        for i in range(len(self.quality_lista_1) - 2, -1, -1):  # Itera sobre as amostras anteriores
             #tempo_amostra_i = quality_lista[i][0]
-            qualidade_amostra_i = quality_lista_1[i]
+            qualidade_amostra_i = self.quality_lista_1[i]
             if i >= 60:
               osc_length = 0
               osc_depth = 0
