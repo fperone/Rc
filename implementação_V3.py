@@ -212,9 +212,12 @@ class R2AQlearning(IR2A):
     else:
       RBC = buffer_change/(bufferfilling - (bufferfilling_anterior/2))
     reward = 2*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
-
-    buffer_filling_lista = self.whiteboard.get_playback_buffer_size() 
-    bufferfilling = buffer_filling_lista[-1][1]
+    if self.seg_num == 1: #response do segnum igual a zero (como a soma é no final do ss_request estamos defasados de 1 aqui no response!)
+      buffer_filling = 5
+    else:
+      buffer_filling_lista = self.whiteboard.get_playback_buffer_size() 
+      print(f"essa é a lista do buffer_filling: {buffer_filling_lista}") #tirar dps
+      bufferfilling = buffer_filling_lista[-1][1]
     if len(buffer_filling_lista) >= 2:
       buffer_change = buffer_filling - buffer_filling_lista[-2][1]
     else:
