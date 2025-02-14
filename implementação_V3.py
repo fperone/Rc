@@ -50,7 +50,7 @@ class R2AQlearning(IR2A):
           # Obter estado inicial do ambiente
           bufferfilling = random.uniform(0, Bfmax)  # Simulação de preenchimento do buffer
           buffer_change = random.uniform(-Bfmax + bufferfilling, Bfmax - bufferfilling)  # Simulação de variação do buffer
-          quality = random.choice(self.qi)  # Qualidade atual MUDAR TALVEZ random.randint(self.qi)
+          quality = random.randint(0,num_qualities-1)  # Qualidade atual MUDAR TALVEZ random.randint(self.qi)
           bandwidth = random.randint(20000, 5000000)  # Simulação de largura de banda
           osc_length = random.randint(0, 60)  # Comprimento da oscilação
           osc_depth = random.randint(0, 19)  # Profundidade da oscilação
@@ -66,8 +66,8 @@ class R2AQlearning(IR2A):
           action = np.random.choice(range(num_qualities), p=probabilities) #seleciona através da política softmax
           # Simular execução da ação (download do segmento)
           # lógica para medir recompensa
-          N = self.qi.index(quality)
-          RQ = ((((quality - 1)/ N - 1) * 2) - 1)
+          #N = self.qi.index(quality)
+          RQ = ((((quality - 1)/ num_qualities - 1) * 2) - 1)
           if osc_length and osc_depth != 0:
             RO = (-1/osc_length**(2/osc_depth)) + ((osc_length - 1)/((60 - 1)* (60 **(2/osc_depth))))
           else:
@@ -85,7 +85,7 @@ class R2AQlearning(IR2A):
           # Novo estado após baixar o segmento!!!
           bufferfilling = random.uniform(0, Bfmax)  # Simulação de preenchimento do buffer MUDAR p/ get buffer max
           buffer_change = random.uniform(-Bfmax + bufferfilling, Bfmax - bufferfilling)  # Simulação de variação do buffer MUDAR p/ get buffer max
-          quality = random.choice(self.qi)  # Qualidade atual
+          quality = random.randint(0,num_qualities-1) #quality = random.choice(self.qi)   Qualidade atual MUDAR AQ DPS
           bandwidth = random.randint(20000, 5000000)  # Simulação de largura de banda
           osc_length = random.randint(0, 60)  # Comprimento da oscilação
           osc_depth = random.randint(0, 19)  # Profundidade da oscilação
@@ -103,7 +103,7 @@ class R2AQlearning(IR2A):
     if self.seg_num == 0:
       bufferfilling = 5  # Simulação de preenchimento do buffer
       buffer_change = 0  # Simulação de variação do buffer
-      quality = 0  # Qualidade atual
+      quality = 0  # Qualidade atual MUDAR ESTRATÉGIA
       bandwidth = self.throughputs[0]  # Simulação de largura de banda
       osc_length = 0  # Comprimento da oscilação
       osc_depth = 0  # Profundidade da oscilação
@@ -130,7 +130,7 @@ class R2AQlearning(IR2A):
       else:
         buffer_change = 0
       quality_lista = self.whiteboard.get_playback_qi()
-      quality = quality_lista[-1][1]
+      quality = self.qi.index(quality_lista[-1][1]) #verificar
       bandwidth = self.throughputs[self.seg_num]
       if len(quality_lista) < 2:
         osc_length = 0  # Comprimento da oscilação
@@ -192,8 +192,8 @@ class R2AQlearning(IR2A):
     osc_depth = self.state_space[0][5]
     
     # lógica para medir recompensa
-    N = self.qi.index(quality)
-    RQ = ((((quality - 1)/ N - 1) * 2) - 1)
+    #N = self.qi.index(quality) verificar
+    RQ = ((((quality - 1)/ num_qualities - 1) * 2) - 1)
     if osc_length and osc_depth != 0:
       RO = (-1/osc_length**(2/osc_depth)) + ((osc_length - 1)/((60 - 1)* (60 **(2/osc_depth))))
     else:
@@ -216,7 +216,7 @@ class R2AQlearning(IR2A):
     else:
       buffer_change = 0
       quality_lista = self.whiteboard.get_playback_qi()
-      quality = quality_lista[-1][1]
+      quality = self.qi.index(quality_lista[-1][1]) #verificar
       bandwidth = self.throughputs[self.seg_num]
     if len(quality_lista) < 2:
       osc_length = 0  # Comprimento da oscilação
