@@ -48,7 +48,7 @@ class R2AQlearning(IR2A):
     tau = 1.0    # Temperatura para Softmax
     if self.seg_num == 0:
       # Loop de treinamento (simulação)
-      for episode in range(10000000):  # Número de iterações de aprendizado
+      for episode in range(100000):  # Número de iterações de aprendizado
           # Obter estado inicial do ambiente
           bufferfilling = random.uniform(0, Bfmax)  # Simulação de preenchimento do buffer
           buffer_change = random.uniform(-Bfmax + bufferfilling, Bfmax - bufferfilling)  # Simulação de variação do buffer
