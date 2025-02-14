@@ -11,6 +11,7 @@ class R2AQlearning(IR2A):
     self.throughputs = []
     self.qi = []
     self.request_time = []
+    self.quality_lista_1 = []
     # Parâmetros do Q-learning
     #alpha = 0.1  # Taxa de aprendizado
     #gamma = 0.9  # Fator de desconto
@@ -122,6 +123,7 @@ class R2AQlearning(IR2A):
       action = np.random.choice(range(num_qualities), p=probabilities) #seleciona através da política softmax
       print(f"chegou aqui na primeira tomada de decisão action segnum = 0, escolheu a qualidade: {action}") #tirar dps
       msg.add_quality_id(self.qi[action])
+      self.quality_lista_1.append(action)
       self.state_space.append(state)
       self.action_space.append(action)
     else:
@@ -132,25 +134,25 @@ class R2AQlearning(IR2A):
       else:
         buffer_change = 0
       quality_lista = self.whiteboard.get_playback_qi()
-      quality = self.qi.index(quality_lista[-1][1]) #verificar
+      quality = quality_lista_1[-1] #verificar DPS self.qi.index(quality_lista[-1][1])
       bandwidth = self.throughputs[self.seg_num]
-      if len(quality_lista) < 2:
+      if len(quality_lista_1) < 2:
         osc_length = 0  # Comprimento da oscilação
         osc_depth = 0  # Profundidade da oscilação
       else:
-        tempo_referencia = quality_lista[-1][0]  # Tempo da amostra mais recente
-        qualidade_referencia = quality_lista[-1][1]  # Qualidade da amostra mais recente
-        for i in range(len(quality_lista) - 2, -1, -1):  # Itera sobre as amostras anteriores
-            tempo_amostra_i = quality_lista[i][0]
-            qualidade_amostra_i = quality_lista[i][1]
-            if tempo_referencia - tempo_amostra_i > 60.0:
+        #tempo_referencia = quality_lista[-1][0]  # Tempo da amostra mais recente, não precisa pq vamos usar unidade de segmentos!
+        qualidade_referencia = quality_lista_1[-1]  # Qualidade da amostra mais recente
+        for i in range(len(quality_lista_1) - 2, -1, -1):  # Itera sobre as amostras anteriores
+            #tempo_amostra_i = quality_lista[i][0]
+            qualidade_amostra_i = quality_lista_1[i]
+            if i >= 60:
               osc_length = 0
               osc_depth = 0
               break
             else:
               if qualidade_amostra_i != qualidade_referencia:
                 osc_length = i + 1
-                osc_depth = self.qi.index(qualidade_amostra_i) - self.qi.index(qualidade_referencia)
+                osc_depth = int(qualidade_amostra_i) - int(qualidade_referencia)
                 break
               else:
                 osc_length = 0
@@ -168,6 +170,7 @@ class R2AQlearning(IR2A):
       action = np.random.choice(range(num_qualities), p=probabilities) #seleciona através da política softmax
       print(f"chegou na tomada de decisão action p/ segnum > 0, escolheu qualidade: {action}")
       msg.add_quality_id(self.qi[action])
+      self.quality_lista_1.append(action)
       self.state_space.append(state)
       self.action_space.append(action)
     #msg.add_quality_id()
@@ -224,25 +227,24 @@ class R2AQlearning(IR2A):
       else:
         buffer_change = 0
         quality_lista = self.whiteboard.get_playback_qi()
-        quality = self.qi.index(quality_lista[-1][1]) #verificar
+        quality = (quality_lista_1[-1]) #verificar
         bandwidth = self.throughputs[self.seg_num]
-      if len(quality_lista) < 2:
+      if len(quality_lista_1) < 2:
         osc_length = 0  # Comprimento da oscilação
         osc_depth = 0  # Profundidade da oscilação
-      else:
-        tempo_referencia = quality_lista[-1][0]  # Tempo da amostra mais recente
-        qualidade_referencia = quality_lista[-1][1]  # Qualidade da amostra mais recente
-        for i in range(len(quality_lista) - 2, -1, -1):  # Itera sobre as amostras anteriores
-            tempo_amostra_i = quality_lista[i][0]
-            qualidade_amostra_i = quality_lista[i][1]
-            if tempo_referencia - tempo_amostra_i > 60.0:
+      else: #paste
+        qualidade_referencia = quality_lista_1[-1]  # Qualidade da amostra mais recente
+        for i in range(len(quality_lista_1) - 2, -1, -1):  # Itera sobre as amostras anteriores
+            #tempo_amostra_i = quality_lista[i][0]
+            qualidade_amostra_i = quality_lista_1[i]
+            if i >= 60:
               osc_length = 0
               osc_depth = 0
               break
             else:
               if qualidade_amostra_i != qualidade_referencia:
                 osc_length = i + 1
-                osc_depth = self.qi.index(qualidade_amostra_i) - self.qi.index(qualidade_referencia)
+                osc_depth = int(qualidade_amostra_i) - int(qualidade_referencia)
                 break
               else:
                 osc_length = 0
