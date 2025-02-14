@@ -7,6 +7,7 @@ import math
 
 class R2AQlearning(IR2A):
   def __init__(self, id):
+    IR2A.__init__(self, id)
     self.throughputs = []
     self.qi = []
     self.request_time = []
