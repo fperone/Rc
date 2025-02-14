@@ -33,7 +33,7 @@ class R2AQlearning(IR2A):
   def handle_xml_response(self, msg):
     parsed_mpd = parse_mpd(msg.get_payload())
     self.qi = parsed_mpd.get_qi()
-    print(f" chegou aqui na lista self.qi handle_xml_response {self.qi}") #tirar dps
+    #print(f" chegou aqui na lista self.qi handle_xml_response {self.qi}") #tirar dps
     t = (time.perf_counter() - self.request_time)/2
     self.throughputs.append(msg.get_bit_length()/t)
     self.send_up(msg)
@@ -48,7 +48,7 @@ class R2AQlearning(IR2A):
     tau = 1.0    # Temperatura para Softmax
     if self.seg_num == 0:
       # Loop de treinamento (simulação)
-      for episode in range(1000):  # Número de iterações de aprendizado
+      for episode in range(100000):  # Número de iterações de aprendizado
           # Obter estado inicial do ambiente
           bufferfilling = random.uniform(0, Bfmax)  # Simulação de preenchimento do buffer
           buffer_change = random.uniform(-Bfmax + bufferfilling, Bfmax - bufferfilling)  # Simulação de variação do buffer
@@ -121,7 +121,7 @@ class R2AQlearning(IR2A):
       exp_q = np.exp(q_values / tau)
       probabilities = exp_q / np.sum(exp_q)
       action = np.random.choice(range(num_qualities), p=probabilities) #seleciona através da política softmax
-      print(f"chegou aqui na primeira tomada de decisão action segnum = 0, escolheu a qualidade: {action}") #tirar dps
+      #print(f"chegou aqui na primeira tomada de decisão action segnum = 0, escolheu a qualidade: {action}") #tirar dps
       msg.add_quality_id(self.qi[action])
       self.quality_lista_1.append(action)
       self.state_space.append(state)
@@ -168,7 +168,7 @@ class R2AQlearning(IR2A):
       exp_q = np.exp(q_values / tau)
       probabilities = exp_q / np.sum(exp_q)
       action = np.random.choice(range(num_qualities), p=probabilities) #seleciona através da política softmax
-      print(f"chegou na tomada de decisão action p/ segnum > 0, escolheu qualidade: {action}")
+      #print(f"chegou na tomada de decisão action p/ segnum > 0, escolheu qualidade: {action}")
       msg.add_quality_id(self.qi[action])
       self.quality_lista_1.append(action)
       self.state_space.append(state)
@@ -179,7 +179,7 @@ class R2AQlearning(IR2A):
     self.request_time = time.perf_counter()
     self.send_down(msg)
   def handle_segment_size_response(self,msg):
-    print("chegou no handle_segment_size_response")
+    #print("chegou no handle_segment_size_response")
     Bfmax = self.whiteboard.get_max_buffer_size() 
     state = self.state_space[0]
     action = self.action_space[0]
@@ -216,7 +216,7 @@ class R2AQlearning(IR2A):
       RBC = buffer_change/(bufferfilling - (bufferfilling_anterior/2))
     reward = 2*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
     buffer_filling_lista = self.whiteboard.get_playback_buffer_size() 
-    print(f"essa é a lista do buffer_filling: {buffer_filling_lista}") #tirar dps
+    #print(f"essa é a lista do buffer_filling: {buffer_filling_lista}") #tirar dps
     if self.seg_num == 1: #response do segnum igual a zero (como a soma é no final do ss_request estamos defasados de 1 aqui no response!)
       #valores são iguais ao seg_num do request, que foram importados através do self.state_space()
       pass
@@ -259,7 +259,7 @@ class R2AQlearning(IR2A):
     self.Q_table[state][action] += alpha * (reward + gamma * self.Q_table[next_state][best_next_action] - self.Q_table[state][action])
     self.state_space.clear()
     self.action_space.clear()
-    print("chegou no final do handle_segment_size_response")
+    #print("chegou no final do handle_segment_size_response")
     self.send_up(msg)
 
   def initialize(self):
