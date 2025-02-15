@@ -72,7 +72,7 @@ class R2AQlearning(IR2A):
           if osc_length and osc_depth != 0:
             RO = (-1/osc_length**(2/osc_depth)) + ((osc_length - 1)/((60 - 1)* (60 **(2/osc_depth))))
           else:
-            RO = 0
+            RO = 1
           if bufferfilling <= (0.1 * Bfmax):
             RB = -1
           else:
@@ -200,7 +200,7 @@ class R2AQlearning(IR2A):
     if osc_length and osc_depth != 0:
       RO = (-1/osc_length**(2/osc_depth)) + ((osc_length - 1)/((60 - 1)* (60 **(2/osc_depth))))
     else:
-      RO = 0
+      RO = 1
     if bufferfilling <= (0.1 * Bfmax):
       RB = -1
     else:
