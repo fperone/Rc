@@ -13,8 +13,8 @@ class R2AQlearning(IR2A):
     self.request_time = []
     self.quality_lista_1 = []
     # Parâmetros do Q-learning
-    #alpha = 0.1  # Taxa de aprendizado
-    #gamma = 0.9  # Fator de desconto
+    #alpha = 0.3  # Taxa de aprendizado
+    #gamma = 0.95  # Fator de desconto
     #tau = 1.0    # Temperatura para Softmax
 
     # Definição do espaço de estados (discretização pode ser ajustada conforme necessário)
@@ -41,7 +41,6 @@ class R2AQlearning(IR2A):
   def handle_segment_size_request(self,msg):
     num_qualities = len(self.qi)
     Bfmax = self.whiteboard.get_max_buffer_size() 
-    print(f"Bfmax = {Bfmax}")
     # Parâmetros do Q-learning
     alpha = 0.3  # Taxa de aprendizado
     gamma = 0.95  # Fator de desconto
@@ -105,7 +104,7 @@ class R2AQlearning(IR2A):
     if self.seg_num == 0:
       bufferfilling = 5  # Simulação de preenchimento do buffer
       buffer_change = 0  # Simulação de variação do buffer
-      quality = 0  # Qualidade atual MUDAR ESTRATÉGIA
+      quality = 12  # Qualidade atual MUDAR ESTRATÉGIA
       bandwidth = self.throughputs[0]  # Simulação de largura de banda
       osc_length = 0  # Comprimento da oscilação
       osc_depth = 0  # Profundidade da oscilação
@@ -212,7 +211,7 @@ class R2AQlearning(IR2A):
     else:
       RBC = buffer_change/(bufferfilling - (bufferfilling_anterior/2))
     reward = 2*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
-    print(f"RB = {RB} e RBC = {RBC}")
+    print(f"RO = {RO}")
     buffer_filling_lista = self.whiteboard.get_playback_buffer_size() 
     if self.seg_num == 1: #response do segnum igual a zero (como a soma é no final do ss_request estamos defasados de 1 aqui no response!)
       #valores são iguais ao seg_num do request, que foram importados através do self.state_space()
