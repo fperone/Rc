@@ -141,7 +141,6 @@ class R2AQlearning(IR2A):
       self.state_space.append(state)
       self.action_space.append(action)
     else: #self.seg_num > 0
-      tau = 0.50
       buffer_filling_lista = self.whiteboard.get_playback_buffer_size() 
       bufferfilling = buffer_filling_lista[-1][1]
       if len(buffer_filling_lista) >= 2:
