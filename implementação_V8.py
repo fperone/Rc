@@ -49,7 +49,7 @@ class R2AQlearning(IR2A):
     tau = 1.0    # Temperatura para Softmax
     if self.seg_num == 0:
       # Loop de treinamento (simulação)
-      for episode in range(1000):  # Número de iterações de aprendizado
+      for episode in range(100000):  # Número de iterações de aprendizado
           # Obter estado inicial do ambiente
           bufferfilling = random.uniform(0, Bfmax)  # Simulação de preenchimento do buffer
           buffer_change = random.uniform(-Bfmax + bufferfilling, Bfmax - bufferfilling)  # Simulação de variação do buffer
@@ -104,7 +104,7 @@ class R2AQlearning(IR2A):
     #PROTOCOLO ABR
     #suposição que len(Buffer_filling_lista) e len(quality_lista) == número de segmentos que foram reproduzidos até agr
     if self.seg_num == 0:
-      tau = 0.50    # Temperatura para Softmax
+      tau = 0.70    # Temperatura para Softmax
       bufferfilling = 5  # Simulação de preenchimento do buffer
       buffer_change = 0  # Simulação de variação do buffer
       quality = 0  # Qualidade atual MUDAR ESTRATÉGIA
@@ -141,6 +141,7 @@ class R2AQlearning(IR2A):
       self.state_space.append(state)
       self.action_space.append(action)
     else: #self.seg_num > 0
+      tau = 0.7 # mudar aq tb
       buffer_filling_lista = self.whiteboard.get_playback_buffer_size() 
       bufferfilling = buffer_filling_lista[-1][1]
       if len(buffer_filling_lista) >= 2:
@@ -214,7 +215,7 @@ class R2AQlearning(IR2A):
     self.throughputs.append(msg.get_bit_length()/t)
     alpha = 0.3  # Taxa de aprendizado
     gamma = 0.95  # Fator de desconto
-    tau = 0.50    # Temperatura para Softmax
+    tau = 0.70    # Temperatura para Softmax
     #FEEDBACK PROTOCOLO ABR
     #state = (round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth)
     bufferfilling = self.state_space[0][0]
