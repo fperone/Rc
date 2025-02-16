@@ -77,7 +77,7 @@ class R2AQlearning(IR2A):
           if osc_length != 0 and osc_depth != 0:
             RO = (-1/osc_length**(2/osc_depth)) + ((osc_length - 1)/((60 - 1)* (60 **(2/osc_depth))))
           else:
-            RO = 1
+            RO = 0
             
           #RECOMPENSA BUFFER!
           if bufferfilling <= (0.1 * Bfmax):
@@ -246,10 +246,10 @@ class R2AQlearning(IR2A):
 
     #lógica pra medir a recompensa
     RQ = ((((quality - 1)/ num_qualities - 1) * 2) - 1)
-    if osc_length and osc_depth != 0:
+    if osc_length != 0 and osc_depth != 0:
       RO = (-1/osc_length**(2/osc_depth)) + ((osc_length - 1)/((60 - 1)* (60 **(2/osc_depth))))
     else:
-      RO = 1
+      RO = 0
     if bufferfilling <= (0.1 * Bfmax):
       RB = -1
     else:
