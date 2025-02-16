@@ -51,7 +51,7 @@ class R2AQlearning(IR2A):
       alpha = 0.3  # Taxa de aprendizado
       gamma = 0.95  # Fator de desconto
       tau = 1.0    # Temperatura para Softmax
-      for episode in range(500000):  # Número de iterações de aprendizado
+      for episode in range(300000):  # Número de iterações de aprendizado
           # Obter estado inicial do ambiente
           bufferfilling = random.uniform(0, Bfmax)  # Simulação de preenchimento do buffer
           buffer_change = random.uniform(-Bfmax + bufferfilling, Bfmax - bufferfilling)  # Simulação de variação do buffer
@@ -93,7 +93,7 @@ class R2AQlearning(IR2A):
             RBC = buffer_change/(bufferfilling - (bufferfilling_anterior/2))
 
           #FORMULA RECOMPENSA
-          reward = 4*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
+          reward = 3*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
           
           # NEXT_STATE após baixar o segmento!!!
           bufferfilling = random.uniform(0, Bfmax)  # Simulação de preenchimento do buffer MUDAR p/ get buffer max
@@ -150,9 +150,9 @@ class R2AQlearning(IR2A):
       self.action_space.append(action) # adiciona a ação atual em uma lista aqui
     if self.seg_num != 0:
       # Parâmetros do Q-learning
-      alpha = 0.3  # Taxa de aprendizado
-      gamma = 0.95  # Fator de desconto
-      tau = 0.5    # Temperatura para Softmax
+      alpha = 0.35  # Taxa de aprendizado
+      gamma = 0.99  # Fator de desconto
+      tau = 1.0    # Temperatura para Softmax
       #state = (round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth)
       bufferfilling = self.state_space[0][0]
       buffer_change = self.state_space[0][1]
@@ -259,7 +259,7 @@ class R2AQlearning(IR2A):
       RBC = buffer_change/bufferfilling_anterior
     else:
       RBC = buffer_change/(bufferfilling - (bufferfilling_anterior/2))
-    reward = 4*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
+    reward = 3*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
     #fim do calculo da recompensa
     
     #update_q_table(state, action, reward, next_state)
