@@ -23,6 +23,7 @@ class R2AQlearning(IR2A):
     self.state_space = [] #passa valores de state de ss_request p/ ss_response
     self.action_space = [] #passa valores de action de ss_request p/ ss_response
     self.Q_table = {}  # Dicionário para armazenar os valores Q
+    self.osc_list = []
     #num_qualities = len(self.qi)
     pass
 
@@ -52,8 +53,8 @@ class R2AQlearning(IR2A):
           # Obter estado inicial do ambiente
           bufferfilling = random.uniform(0, Bfmax)  # Simulação de preenchimento do buffer
           buffer_change = random.uniform(-Bfmax + bufferfilling, Bfmax - bufferfilling)  # Simulação de variação do buffer
-          quality = random.randint(0,num_qualities-1)  # Qualidade atual MUDAR TALVEZ random.randint(self.qi)
-          bandwidth = random.randint(20000, 5000000)  # Simulação de largura de banda
+          quality = random.randint(0,num_qualities-1)  # Qualidade atual ESTRATEGIA RELACIONAR À BANDWIDTH
+          bandwidth = random.choice(self.qi)  # Simulação de largura de banda
           osc_length = random.randint(0, 60)  # Comprimento da oscilação
           osc_depth = random.randint(0, 19)  # Profundidade da oscilação
           state = (round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth)
@@ -88,7 +89,7 @@ class R2AQlearning(IR2A):
           bufferfilling = random.uniform(0, Bfmax)  # Simulação de preenchimento do buffer MUDAR p/ get buffer max
           buffer_change = random.uniform(-Bfmax + bufferfilling, Bfmax - bufferfilling)  # Simulação de variação do buffer MUDAR p/ get buffer max
           quality = random.randint(0,num_qualities-1) #quality = random.choice(self.qi)   Qualidade atual MUDAR AQ DPS
-          bandwidth = random.randint(20000, 5000000)  # Simulação de largura de banda
+          bandwidth = random.choice(self.qi)  # Simulação de largura de banda
           osc_length = random.randint(0, 60)  # Comprimento da oscilação
           osc_depth = random.randint(0, 19)  # Profundidade da oscilação
           next_state = (round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth)
@@ -103,13 +104,26 @@ class R2AQlearning(IR2A):
     #PROTOCOLO ABR
     #suposição que len(Buffer_filling_lista) e len(quality_lista) == número de segmentos que foram reproduzidos até agr
     if self.seg_num == 0:
+      tau = 0.50    # Temperatura para Softmax
       bufferfilling = 5  # Simulação de preenchimento do buffer
       buffer_change = 0  # Simulação de variação do buffer
       quality = 0  # Qualidade atual MUDAR ESTRATÉGIA
-      bandwidth = self.throughputs[0]  # Simulação de largura de banda
+      bandwidth_referencial = self.throughputs[0]  # Simulação de largura de banda
       osc_length = 0  # Comprimento da oscilação
       osc_depth = 0  # Profundidade da oscilação
+      if bandwidth_referencial <= self.qi[0]:
+        bandwidth = self.qi[0]
+      elif bandwidth_referencial >= self.qi[len(self.qi)-1]:
+        bandwidth = self.qi[len(self.qi)-1]
+      else:
+        for i in range(len(self.qi)):
+          if bandwidth_referencial >= self.qi[i]:
+            pass
+          else:
+            bandwidth = self.qi[i-1]
+            break
       #action = select_quality(bufferfilling, buffer_change, quality, bandwidth, osc_length, osc_depth)
+      quality = self.qi.index(bandwidth) # Qualidade atual MUDAR ESTRATÉGIA
       #def select_quality(buffer, buffer_change, quality, bandwidth, osc_length, osc_depth):
       state = (bufferfilling, buffer_change, quality, bandwidth, osc_length, osc_depth)
       #action = softmax_selection(state)
@@ -126,37 +140,49 @@ class R2AQlearning(IR2A):
       self.quality_lista_1.append(action)
       self.state_space.append(state)
       self.action_space.append(action)
-    else:
+    else: #self.seg_num > 0
       buffer_filling_lista = self.whiteboard.get_playback_buffer_size() 
       bufferfilling = buffer_filling_lista[-1][1]
       if len(buffer_filling_lista) >= 2:
         buffer_change = bufferfilling - buffer_filling_lista[-2][1]
       else:
         buffer_change = 0
-      quality_lista = self.whiteboard.get_playback_qi()
+      quality_lista = self.whiteboard.get_playback_qi() #n usa
       quality = self.quality_lista_1[-1] #verificar DPS self.qi.index(quality_lista[-1][1])
-      bandwidth = self.throughputs[self.seg_num]
+      bandwidth_referencial = self.throughputs[self.seg_num]
+      if bandwidth_referencial <= self.qi[0]:
+        bandwidth = self.qi[0]
+      elif bandwidth_referencial >= self.qi[len(self.qi)-1]:
+        bandwidth = self.qi[len(self.qi)-1]
+      else:
+        for i in range(len(self.qi)):
+          if bandwidth_referencial >= self.qi[i]:
+            pass
+          else:
+            bandwidth = self.qi[i-1]
+            break     
       if len(self.quality_lista_1) < 2:
+        #caso a lista tenha menos de 2 elementos não tem oscilação!
         osc_length = 0  # Comprimento da oscilação
         osc_depth = 0  # Profundidade da oscilação
       else:
-        #tempo_referencia = quality_lista[-1][0]  # Tempo da amostra mais recente, não precisa pq vamos usar unidade de segmentos!
-        qualidade_referencia = self.quality_lista_1[-1]  # Qualidade da amostra mais recente
-        for i in range(len(self.quality_lista_1) - 2, -1, -1):  # Itera sobre as amostras anteriores
-            #tempo_amostra_i = quality_lista[i][0]
-            qualidade_amostra_i = self.quality_lista_1[i]
-            if i >= 60:
+        if self.quality_lista_1[-1] < self.quality_lista_1[-2]:
+          self.osc_list.append(self.seg_num)
+          if len(self.osc_list) < 2:
+            #caso a lista tenha menos de 2 elementos não tem oscilação!
+            osc_length = 0  # Comprimento da oscilação
+            osc_depth = 0  # Profundidade da oscilação
+          else:
+            ol = self.osc_list[-1] - self.osc_list[-2]
+            if ol >= 60:
               osc_length = 0
               osc_depth = 0
-              break
             else:
-              if qualidade_amostra_i != qualidade_referencia:
-                osc_length = i + 1
-                osc_depth = int(qualidade_amostra_i) - int(qualidade_referencia)
-                break
-              else:
-                osc_length = 0
-                osc_depth = 0
+              osc_length = ol
+              osc_depth = self.quality_lista_1[-2] - self.quality_lista_1[-1]
+        else: 
+          osc_length = 0
+          osc_depth = 0
       #action = select_quality(bufferfilling, buffer_change, quality, bandwidth, osc_length, osc_depth)
       #def select_quality(buffer, buffer_change, quality, bandwidth, osc_length, osc_depth):
       #aqui
@@ -188,7 +214,7 @@ class R2AQlearning(IR2A):
     self.throughputs.append(msg.get_bit_length()/t)
     alpha = 0.3  # Taxa de aprendizado
     gamma = 0.95  # Fator de desconto
-    tau = 1.0    # Temperatura para Softmax
+    tau = 0.50    # Temperatura para Softmax
     #FEEDBACK PROTOCOLO ABR
     #state = (round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth)
     bufferfilling = self.state_space[0][0]
@@ -226,29 +252,43 @@ class R2AQlearning(IR2A):
         buffer_change = bufferfilling - buffer_filling_lista[-2][1]
       else:
         buffer_change = 0
-        quality_lista = self.whiteboard.get_playback_qi()
-        quality = (self.quality_lista_1[-1]) #verificar
-        bandwidth = self.throughputs[self.seg_num]
+      quality_lista = self.whiteboard.get_playback_qi()
+      quality = (self.quality_lista_1[-1]) #verificar
+      bandwidth_referencial = self.throughputs[self.seg_num]
+      if bandwidth_referencial <= self.qi[0]:
+        bandwidth = self.qi[0]
+      elif bandwidth_referencial >= self.qi[len(self.qi)-1]:
+        bandwidth = self.qi[len(self.qi)-1]
+      else:
+        for i in range(len(self.qi)):
+          if bandwidth_referencial >= self.qi[i]:
+            pass
+          else:
+            bandwidth = self.qi[i-1]
+            break
       if len(self.quality_lista_1) < 2:
+        #caso a lista tenha menos de 2 elementos não tem oscilação!
         osc_length = 0  # Comprimento da oscilação
         osc_depth = 0  # Profundidade da oscilação
-      else: #paste
-        qualidade_referencia = self.quality_lista_1[-1]  # Qualidade da amostra mais recente
-        for i in range(len(self.quality_lista_1) - 2, -1, -1):  # Itera sobre as amostras anteriores
-            #tempo_amostra_i = quality_lista[i][0]
-            qualidade_amostra_i = self.quality_lista_1[i]
-            if i >= 60:
+      else:
+        if self.quality_lista_1[-1] < self.quality_lista_1[-2]:
+          self.osc_list.append(self.seg_num)
+          if len(self.osc_list) < 2:
+            #caso a lista tenha menos de 2 elementos não tem oscilação!
+            osc_length = 0  # Comprimento da oscilação
+            osc_depth = 0  # Profundidade da oscilação
+          else:
+            ol = self.osc_list[-1] - self.osc_list[-2]
+            if ol >= 60:
               osc_length = 0
               osc_depth = 0
-              break
             else:
-              if qualidade_amostra_i != qualidade_referencia:
-                osc_length = i + 1
-                osc_depth = int(qualidade_amostra_i) - int(qualidade_referencia)
-                break
-              else:
-                osc_length = 0
-                osc_depth = 0
+              osc_length = ol
+              osc_depth = self.quality_lista_1[-2] - self.quality_lista_1[-1]
+        else: 
+          osc_length = 0
+          osc_depth = 0
+
     #FIM DO FEEDBACK
     next_state = (round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth)
     #update_q_table(state, action, reward, next_state)
