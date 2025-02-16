@@ -93,7 +93,7 @@ class R2AQlearning(IR2A):
             RBC = buffer_change/(bufferfilling - (bufferfilling_anterior/2))
 
           #FORMULA RECOMPENSA
-          reward = 2*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
+          reward = 4*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
           
           # NEXT_STATE após baixar o segmento!!!
           bufferfilling = random.uniform(0, Bfmax)  # Simulação de preenchimento do buffer MUDAR p/ get buffer max
@@ -259,7 +259,7 @@ class R2AQlearning(IR2A):
       RBC = buffer_change/bufferfilling_anterior
     else:
       RBC = buffer_change/(bufferfilling - (bufferfilling_anterior/2))
-    reward = 2*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
+    reward = 4*RQ + 1*RO + 4*RB + 3*RBC # Exemplo de recompensa aleatória
     #fim do calculo da recompensa
     
     #update_q_table(state, action, reward, next_state)
