@@ -43,15 +43,15 @@ class R2AQlearning(IR2A):
     #VALORES FIXOS!
     num_qualities = len(self.qi)
     Bfmax = self.whiteboard.get_max_buffer_size() 
-    # Parâmetros do Q-learning
-    alpha = 0.3  # Taxa de aprendizado
-    gamma = 0.95  # Fator de desconto
-    tau = 1.0    # Temperatura para Softmax
 
     # TREINAMENTO AGENTE Q-LEARNING! (simulação)
     if self.seg_num == 0:
       # Loop de treinamento (simulação)
-      for episode in range(100000):  # Número de iterações de aprendizado
+      # Parâmetros do Q-learning
+      alpha = 0.3  # Taxa de aprendizado
+      gamma = 0.95  # Fator de desconto
+      tau = 1.0    # Temperatura para Softmax
+      for episode in range(500000):  # Número de iterações de aprendizado
           # Obter estado inicial do ambiente
           bufferfilling = random.uniform(0, Bfmax)  # Simulação de preenchimento do buffer
           buffer_change = random.uniform(-Bfmax + bufferfilling, Bfmax - bufferfilling)  # Simulação de variação do buffer
@@ -149,6 +149,10 @@ class R2AQlearning(IR2A):
       self.state_space.append(state) # adiciona o estado atual em uma lista aqui
       self.action_space.append(action) # adiciona a ação atual em uma lista aqui
     if self.seg_num != 0:
+      # Parâmetros do Q-learning
+      alpha = 0.3  # Taxa de aprendizado
+      gamma = 0.95  # Fator de desconto
+      tau = 0.5    # Temperatura para Softmax
       #state = (round(bufferfilling, 1), round(buffer_change, 1), quality, round(bandwidth, 1), osc_length, osc_depth)
       bufferfilling = self.state_space[0][0]
       buffer_change = self.state_space[0][1]
